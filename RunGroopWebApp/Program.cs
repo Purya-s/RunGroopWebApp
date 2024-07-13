@@ -1,7 +1,11 @@
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Localization;
 using Microsoft.EntityFrameworkCore;
 using RunGroopWebApp.Data;
 using RunGroopWebApp.Helpers;
 using RunGroopWebApp.Interfaces;
+using RunGroopWebApp.Models;
 using RunGroopWebApp.Repository;
 using RunGroopWebApp.Services;
 
@@ -9,7 +13,12 @@ namespace RunGroopWebApp
 {
     public class Program
     {
-        public static void Main(string[] args)
+        public static async void SeedWithoutMain_Error(WebApplication app)
+        {
+            await Seed.SeedUsersAndRolesAsync(app);
+        }
+
+        public static void  Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
 
@@ -18,17 +27,24 @@ namespace RunGroopWebApp
             builder.Services.AddScoped<IClubRepository, ClubRepository>();
             builder.Services.AddScoped<IRaceRepository, RaceRepository>();
             builder.Services.AddScoped<IPhotoService, PhotoService>();
+            builder.Services.AddScoped<IDashboardRepository, DashboardRepository>();
+            builder.Services.AddScoped<IUserRepository, UserRepository>();
             builder.Services.Configure<CloudinarySettings>(builder.Configuration.GetSection("CloudinarySettings"));
             builder.Services.AddDbContext<ApplicationDbContext>(options =>
             {
                 options.UseSqlServer(builder.Configuration.GetConnectionString("defaultConnection"));
             });
+            builder.Services.AddIdentity<AppUser, IdentityRole>().AddEntityFrameworkStores<ApplicationDbContext>();
+            builder.Services.AddMemoryCache();
+            builder.Services.AddSession();
+            builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme).AddCookie();
 
             var app = builder.Build();
 
             if (args.Length == 1 && args[0].ToLower()=="seeddata")
             {
-                Seed.SeedData(app);
+                //await Seed.SeedUsersAndRolesAsync(app);
+                SeedWithoutMain_Error(app);
             }
 
             // Configure the HTTP request pipeline.
@@ -43,7 +59,7 @@ namespace RunGroopWebApp
             app.UseStaticFiles();
 
             app.UseRouting();
-
+            app.UseAuthentication();
             app.UseAuthorization();
 
             app.MapControllerRoute(
