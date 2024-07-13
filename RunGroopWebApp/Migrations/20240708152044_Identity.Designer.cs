@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using RunGroopWebApp.Data;
 
@@ -11,9 +12,10 @@ using RunGroopWebApp.Data;
 namespace RunGroopWebApp.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240708152044_Identity")]
+    partial class Identity
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -188,11 +190,8 @@ namespace RunGroopWebApp.Migrations
                     b.Property<int>("AccessFailedCount")
                         .HasColumnType("int");
 
-                    b.Property<int?>("AddressId")
+                    b.Property<int>("AddressId")
                         .HasColumnType("int");
-
-                    b.Property<string>("City")
-                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("ConcurrencyStamp")
                         .IsConcurrencyToken()
@@ -234,13 +233,7 @@ namespace RunGroopWebApp.Migrations
                     b.Property<bool>("PhoneNumberConfirmed")
                         .HasColumnType("bit");
 
-                    b.Property<string>("ProfileImageUrl")
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<string>("SecurityStamp")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("State")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<bool>("TwoFactorEnabled")
@@ -408,11 +401,13 @@ namespace RunGroopWebApp.Migrations
 
             modelBuilder.Entity("RunGroopWebApp.Models.AppUser", b =>
                 {
-                    b.HasOne("RunGroopWebApp.Models.Address", "Address")
+                    b.HasOne("RunGroopWebApp.Models.Address", "Adress")
                         .WithMany()
-                        .HasForeignKey("AddressId");
+                        .HasForeignKey("AddressId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
-                    b.Navigation("Address");
+                    b.Navigation("Adress");
                 });
 
             modelBuilder.Entity("RunGroopWebApp.Models.Club", b =>
@@ -422,7 +417,7 @@ namespace RunGroopWebApp.Migrations
                         .HasForeignKey("AddressId");
 
                     b.HasOne("RunGroopWebApp.Models.AppUser", "AppUser")
-                        .WithMany("Clubs")
+                        .WithMany("clubs")
                         .HasForeignKey("AppUserId");
 
                     b.Navigation("Address");
@@ -439,7 +434,7 @@ namespace RunGroopWebApp.Migrations
                         .IsRequired();
 
                     b.HasOne("RunGroopWebApp.Models.AppUser", "AppUser")
-                        .WithMany("Races")
+                        .WithMany("races")
                         .HasForeignKey("AppUserId");
 
                     b.Navigation("Address");
@@ -449,9 +444,9 @@ namespace RunGroopWebApp.Migrations
 
             modelBuilder.Entity("RunGroopWebApp.Models.AppUser", b =>
                 {
-                    b.Navigation("Clubs");
+                    b.Navigation("clubs");
 
-                    b.Navigation("Races");
+                    b.Navigation("races");
                 });
 #pragma warning restore 612, 618
         }
